@@ -1,17 +1,55 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema(
-  {
-    username: { type: String, required: true, unique: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    isAdmin: {
-      type: Boolean,
-      default: false,
+const userSchema = new mongoose.Schema({
+    username: {
+        type : String,
+        required: true,
     },
-    img: { type: String },
-  },
-  { timestamps: true }
-);
+    email: {
+        type: String,
+        required: true,
+    }, 
+    password: { 
+        type: String,
+        required: true,
+    },
+    accountVerified: {
+        type: Boolean,
+    }     
+},{timestamps:true})
 
-module.exports = mongoose.model("User", UserSchema);
+
+
+// hashing password
+
+userSchema.pre('save', async function(next){
+    
+    if(this.isModified('userPassword')){
+        this.userPassword =  await bcrypt.hash(this.userPassword, 12);
+        this.userCnfrmPass =  await bcrypt.hash(this.userCnfrmPass, 12);
+    }
+    next();
+
+});
+
+
+
+//generating token
+userSchema.methods.generateAuthToken = async function(){
+    try{
+        let token = jwt.sign({_id: this._id}, process.env.ACCESS_TOKEN_KEY, {expiresIn: "7d"});
+        return token;
+
+    }catch(err){
+        console.log(err);
+    }
+}
+
+
+userSchema.index({ username: "text", email: "text" });
+
+const User = mongoose.model('USER', userSchema);
+
+module.exports = User;
