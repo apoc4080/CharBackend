@@ -17,7 +17,12 @@ const userSchema = new mongoose.Schema({
     },
     accountVerified: {
         type: Boolean,
-    }     
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    img: { type: String },     
 },{timestamps:true})
 
 
