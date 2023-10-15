@@ -80,7 +80,7 @@ router.post('/register', async (req, res) => {
 
       let token = await newUser.generateAuthToken();
 
-      const url = `http://localhost:5000/api/auth/verify/${token}`
+      const url = `https://char.onrender.com/api/auth/verify/${token}`
 
 
       sendEmail({
